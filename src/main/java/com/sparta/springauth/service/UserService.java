@@ -51,7 +51,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void login(LoginRequestDto requestDto, HttpServletResponse response) {
+ /*   Controller 단에서 수행하는 로그인
+
+        public void login(LoginRequestDto requestDto, HttpServletResponse response) {
         String username = requestDto.getUsername();
         String password = requestDto.getPassword();
 
@@ -73,5 +75,5 @@ public class UserService {
         jwtUtil.addJwtToCookie(token, response);
 
 
-    }
+    }*/
 }
