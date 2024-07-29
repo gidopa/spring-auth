@@ -4,21 +4,27 @@ import com.sparta.springauth.dto.LoginRequestDto;
 import com.sparta.springauth.dto.SignupRequestDto;
 import com.sparta.springauth.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 @Slf4j
 @Controller
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/user/login-page")
     public String loginPage() {
@@ -31,21 +37,18 @@ public class UserController {
     }
 
     @PostMapping("/user/signup")
-    public String signup(@ModelAttribute SignupRequestDto requestDto) {
-        userService.signup(requestDto);
-        log.info("User 회원가입 , Id : {}, password : {}", requestDto.getUsername(), requestDto.getPassword());
-        return "redirect:/api/user/login-page";
-    }
-
-  /*  @PostMapping("/user/login")
-    public String login(@ModelAttribute LoginRequestDto requestDto, HttpServletResponse response) {
-        try {
-            userService.login(requestDto, response);
-        } catch (Exception e) {
-            log.info("Login error");
-            return "redirect:/api/user/login-page?error";
+    public String signup(@Valid SignupRequestDto requestDto, BindingResult bindingResult) {
+        // Validation 예외처리
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        if(!fieldErrors.isEmpty()) {
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                log.error("{} 필드 : {}",fieldError.getField(), fieldError.getDefaultMessage());
+            }
+            return "redirect:/api/user/signup";
         }
 
-        return "redirect:/";
-    }*/
+        userService.signup(requestDto);
+
+        return "redirect:/api/user/login-page";
+    }
 }
